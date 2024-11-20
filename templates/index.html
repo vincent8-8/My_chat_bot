@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Claude Chat Interface</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #chat-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+        }
+        #message-form {
+            display: flex;
+            gap: 10px;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat with Claude</h1>
+    <div id="chat-container"></div>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $('#message-form').on('submit', function(e) {
+                e.preventDefault();
+                const message = $('#message-input').val();
+                if (!message) return;
+
+                // Add user message to chat
+                $('#chat-container').append(
+                    `<div class="message user-message">You: ${message}</div>`
+                );
+                $('#message-input').val('');
+
+                // Send message to server
+                $.ajax({
+                    url: '/ask',
+                    method: 'POST',
+                    data: { message: message },
+                    success: function(response) {
+                        $('#chat-container').append(
+                            `<div class="message bot-message">Claude: ${response.response}</div>`
+                        );
+                        $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+                    },
+                    error: function() {
+                        $('#chat-container').append(
+                            `<div class="message bot-message">Error: Could not get response</div>`
+                        );
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
